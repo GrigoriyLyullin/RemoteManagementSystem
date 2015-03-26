@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+<h:head><title>Employee List</title></h:head>
+<h:body>
+    <h:dataTable value="#{ticketController.ticketList}" var="ticket" border="1">
+        <h:column>
+            <f:facet name="header">
+                <h:outputText value="Ticket"/>
+            </f:facet>
+            <h:outputText value="#{ticket}"/>
+        </h:column>
+    </h:dataTable>
+    <h:form target="_blank">
+        <h:commandButton value="View PDF" action="#{ticketController.download}"/>
+    </h:form>
+</h:body>
+</html>
