@@ -1,0 +1,85 @@
+body {
+    background: #333333;
+}
+
+h1 {
+    margin-top: 0;
+    font-family: Arial, sans-serif;
+    font-size: 38px;
+    color: #CCCCCC;
+}
+
+.login {
+    display: block;
+    margin-top: 15%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 370px;
+    box-shadow: 5px 5px 5px #1A1A1A;
+}
+
+.rememberMe {
+    margin-top: 15px;
+}
+
+.loginButton {
+    float: right;
+}
+
+.logoutButton {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.logout {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.reportInputPage {
+    margin-top: 15%;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+.reportPage {
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+.reportForm {
+    box-shadow: 5px 5px 5px #1A1A1A;
+}
+
+.reportFormInputPanel {
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+.reportPanel {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: 530px;
+}
+
+.reportPreloaderImg {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.report {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.reportInput {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.reportInput input {
+    width: 295px;
+}

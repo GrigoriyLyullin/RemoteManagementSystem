@@ -2,12 +2,44 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://java.sun.com/jsf/html">
-
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
 <h:head>
-    <title>JSF 2.0 Hello World</title>
+    <title>Sign in</title>
+    <h:outputStylesheet library="primefaces-bootstrap" name="theme.css"/>
+    <h:outputStylesheet value="/resources" name="style.css"/>
 </h:head>
 <h:body>
-    <h:link outcome="tikcetList.xhtml" value="Tikcet list"/>
+    <h:form rendered="#{authenticationController.loggedIn}">
+        <p:panel styleClass="login" header="Login" widgetVar="loginForm">
+            <p:growl id="growlLogout"/>
+            <h:panelGrid columns="2" cellpadding="5">
+                <h:outputText value="You are successfully logged in"/>
+                <f:facet name="footer">
+                    <p:commandButton value="View report" action="private/ticket_report.xhtml?faces-redirect=true"/>
+                    <p:commandButton value="Sign out" action="#{authenticationController.logout}"
+                                     update="growlLogout"/>
+                </f:facet>
+            </h:panelGrid>
+        </p:panel>
+    </h:form>
+    <h:form rendered="#{not authenticationController.loggedIn}">
+        <p:panel styleClass="login" header="Sign in" widgetVar="loginForm">
+            <p:growl id="growlLogin"/>
+            <h:panelGrid columns="2" cellpadding="5">
+                <h:outputLabel for="username" value="Username:"/>
+                <p:inputText id="username" value="#{authenticationController.username}" required="true"
+                             label="username" placeholder="Username" requiredMessage="Field 'Username' is required"/>
+                <h:outputLabel for="password" value="Password:"/>
+                <p:password id="password" value="#{authenticationController.password}" required="true"
+                            label="password" placeholder="Password" requiredMessage="Field 'Password' is required"/>
+                <f:facet name="footer">
+                    <p:commandButton styleClass="loginButton" value="Sign in" update="growlLogin"
+                                     action="#{authenticationController.login}"/>
+                </f:facet>
+            </h:panelGrid>
+        </p:panel>
+    </h:form>
 </h:body>
 </html>

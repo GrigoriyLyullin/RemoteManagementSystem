@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions">
+<h:head>
+    <title>Report page</title>
+    <h:outputStylesheet library="primefaces-bootstrap" name="theme.css"/>
+    <h:outputStylesheet value="/resources" name="style.css"/>
+</h:head>
+<h:body styleClass="reportPage">
+    <h1>Railway Company</h1>
+    <f:event listener="#{ticketController.onPrerender}" type="preRenderComponent"/>
+    <pe:documentViewer value="#{ticketController.pdfContent}" height="550"/>
+    <h:form styleClass="logoutButton">
+        <p:commandButton icon="ui-icon-arrowstop-1-e" value="Sign out" action="#{authenticationController.logout}"/>
+    </h:form>
+</h:body>
+</html>

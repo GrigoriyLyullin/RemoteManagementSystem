@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="http://java.sun.com/jsf/html">
+<h:head>
+    <title>Report input form</title>
+    <h:outputStylesheet library="primefaces-bootstrap" name="theme.css"/>
+    <h:outputStylesheet value="/resources" name="style.css"/>
+</h:head>
+<h:body>
+    <div class="reportInputPage">
+        <h1>Railway Company</h1>
+        <h:form>
+            <p:panel styleClass="reportForm" header="Generate report on ticket sales">
+                <p:growl id="growlDate"/>
+                <h:panelGrid styleClass="reportFormInputPanel" columns="5" cellpadding="5">
+                    <h:outputLabel for="dateFrom" value="From:"/>
+                    <p:calendar styleClass="reportInput" id="dateFrom" value="#{ticketController.dateFrom}"
+                                required="true"
+                                label="dateFrom" pattern="yyyy-MM-dd HH:mm"
+                                requiredMessage="Start date is required"/>
+                    <h:outputLabel for="dateTo" value="To:"/>
+                    <p:calendar styleClass="reportInput" id="dateTo" value="#{ticketController.dateTo}"
+                                required="true"
+                                label="dateTo" pattern="yyyy-MM-dd HH:mm" requiredMessage="End date is required"/>
+                    <p:commandButton styleClass="loginButton" icon="ui-icon-document" update="growlDate"
+                                     onclick="PF('preloaderDialog').show();"
+                                     action="#{ticketController.getTickets}"
+                                     oncomplete="PF('preloaderDialog').hide();"/>
+                </h:panelGrid>
+            </p:panel>
+        </h:form>
+    </div>
+    <p:dialog widgetVar="preloaderDialog" modal="true" closable="false" showHeader="false" resizable="false">
+        <h:graphicImage library="img" name="preloader.gif"/>
+    </p:dialog>
+    <h:form styleClass="logoutButton">
+        <p:commandButton icon="ui-icon-arrowstop-1-e" value="Sign out" action="#{authenticationController.logout}"/>
+    </h:form>
+</h:body>
+</html>
