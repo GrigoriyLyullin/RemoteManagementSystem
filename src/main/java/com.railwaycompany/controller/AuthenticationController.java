@@ -32,27 +32,32 @@ public class AuthenticationController implements Serializable {
     private AuthenticationService authenticationService;
 
     public String login() {
+        LOG.debug("Try to log in");
         FacesContext facesContext = FacesContext.getCurrentInstance();
         token = authenticationService.authenticate(username, password);
         if (token != null) {
             ExternalContext externalContext = facesContext.getExternalContext();
             externalContext.getSessionMap().put(TOKEN_PARAM, token);
             setLoggedIn(true);
+            LOG.debug("Successfully log in");
             return REPORT_PAGE_REDIRECT;
         } else {
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN,
                     "User with such username and password does not exist", ""));
+            LOG.warn("User with such username and password does not exist");
             setLoggedIn(false);
             return null;
         }
     }
 
     public String logout() {
+        LOG.debug("Try to log out");
         if (isLoggedIn()) {
             ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
             try {
                 HttpSession httpSession = (HttpSession) externalContext.getSession(false);
                 httpSession.invalidate();
+                LOG.warn("User has been successfully log out");
             } catch (NullPointerException e) {
                 LOG.warn("User try to log out with empty session");
             }

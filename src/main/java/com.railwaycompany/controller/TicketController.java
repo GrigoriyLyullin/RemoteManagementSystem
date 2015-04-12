@@ -55,37 +55,37 @@ public class TicketController implements Serializable {
     }
 
     public void onPrerender(ComponentSystemEvent event) {
-        if (ticketList != null && !ticketList.isEmpty()) {
-            try {
-                Document document = new Document(PageSize.A4, 36.0F, 36.0F, 72.0F, 36.0F);
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                PdfWriter writer = PdfWriter.getInstance(document, out);
-                document.open();
-                document.newPage();
+        try {
+            Document document = new Document(PageSize.A4, 36.0F, 36.0F, 72.0F, 36.0F);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            PdfWriter writer = PdfWriter.getInstance(document, out);
+            document.open();
+            document.newPage();
 
-                FacesContext facesContext = FacesContext.getCurrentInstance();
-                ExternalContext externalContext = facesContext.getExternalContext();
-                String relativeWebPath = "/resources/pdf/template.pdf";
-                ServletContext servletContext = (ServletContext) externalContext.getContext();
-                String absoluteDiskPath = servletContext.getRealPath(relativeWebPath);
-                File file = new File(absoluteDiskPath);
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            ExternalContext externalContext = facesContext.getExternalContext();
+            String relativeWebPath = "/resources/pdf/template.pdf";
+            ServletContext servletContext = (ServletContext) externalContext.getContext();
+            String absoluteDiskPath = servletContext.getRealPath(relativeWebPath);
+            File file = new File(absoluteDiskPath);
 
-                PdfReader reader = new PdfReader(new FileInputStream(file));
-                PdfImportedPage page = writer.getImportedPage(reader, 1);
-                PdfContentByte cb = writer.getDirectContent();
-                cb.addTemplate(page, 0, 0);
+            PdfReader reader = new PdfReader(new FileInputStream(file));
+            PdfImportedPage page = writer.getImportedPage(reader, 1);
+            PdfContentByte cb = writer.getDirectContent();
+            cb.addTemplate(page, 0, 0);
 
-                Font fontBig = new Font(Font.getFamily("Arial"), 24.0f, Font.BOLD);
-                Font fontMedium = new Font(Font.getFamily("Arial"), 12.0f, Font.NORMAL);
+            Font fontBig = new Font(Font.getFamily("Arial"), 24.0f, Font.BOLD);
+            Font fontMedium = new Font(Font.getFamily("Arial"), 12.0f, Font.NORMAL);
 
-                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-                document.add(new Paragraph("Ticket sales report", fontBig));
-                document.add(new Paragraph(Chunk.NEWLINE));
-                document.add(new Paragraph("Start date: " + dateFormat.format(dateFrom), fontMedium));
-                document.add(new Paragraph("End date: " + dateFormat.format(dateTo), fontMedium));
-                document.add(new Paragraph(Chunk.NEWLINE));
+            document.add(new Paragraph("Ticket sales report", fontBig));
+            document.add(new Paragraph(Chunk.NEWLINE));
+            document.add(new Paragraph("Start date: " + dateFormat.format(dateFrom), fontMedium));
+            document.add(new Paragraph("End date: " + dateFormat.format(dateTo), fontMedium));
+            document.add(new Paragraph(Chunk.NEWLINE));
 
+            if (ticketList != null && !ticketList.isEmpty()) {
                 PdfPTable table = new PdfPTable(8);
                 table.setWidthPercentage(100);
                 table.setSpacingBefore(5);
@@ -160,14 +160,16 @@ public class TicketController implements Serializable {
                     table.addCell(trainSeatsCell);
                 }
                 document.add(table);
-                document.close();
-                setPdfContent(new DefaultStreamedContent(new ByteArrayInputStream(out.toByteArray()), "application/pdf"));
-                out.close();
-            } catch (FileNotFoundException e) {
-                LOG.warn("Template file not found", e);
-            } catch (DocumentException | IOException e) {
-                LOG.warn(e);
+            } else {
+                document.add(new Paragraph("For a specified period not sold a single ticket!"));
             }
+            document.close();
+            setPdfContent(new DefaultStreamedContent(new ByteArrayInputStream(out.toByteArray()), "application/pdf"));
+            out.close();
+        } catch (FileNotFoundException e) {
+            LOG.warn("Template file not found", e);
+        } catch (DocumentException | IOException e) {
+            LOG.warn(e);
         }
     }
 
