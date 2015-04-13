@@ -1,17 +1,13 @@
-package com.railwaycompany.model.entities;
+package com.railwaycompany.model.dto;
 
-import java.io.Serializable;
 import java.util.Date;
 
-public class Passenger implements Serializable {
+public class PassengerData {
 
     private int id;
     private String name;
     private String surname;
     private Date birthdate;
-
-    public Passenger() {
-    }
 
     public int getId() {
         return id;
@@ -43,5 +39,14 @@ public class Passenger implements Serializable {
 
     public void setBirthdate(Date birthdate) {
         this.birthdate = birthdate;
+    }
+
+    @Override
+    public String toString() {
+        return "PassengerData{" +
+                "name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", birthdate=" + birthdate +
+                '}';
     }
 }

@@ -2,9 +2,9 @@ package com.railwaycompany.controller;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
-import com.railwaycompany.model.entities.Passenger;
-import com.railwaycompany.model.entities.Ticket;
-import com.railwaycompany.model.entities.Train;
+import com.railwaycompany.model.dto.PassengerData;
+import com.railwaycompany.model.dto.TicketData;
+import com.railwaycompany.model.dto.TrainData;
 import com.railwaycompany.model.interfaces.TicketService;
 import org.apache.log4j.Logger;
 import org.primefaces.model.DefaultStreamedContent;
@@ -20,7 +20,8 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import java.io.*;
-import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -33,10 +34,13 @@ public class TicketController implements Serializable {
     private static final String REPORT_PAGE_REDIRECT = "/private/report_page.xhtml?faces-redirect=true";
     private static final String TOKEN_PARAM = "Rest-Token";
 
+    private final SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
     private StreamedContent pdfContent;
     private Date dateFrom;
     private Date dateTo;
-    private List<Ticket> ticketList;
+    private List<TicketData> ticketList;
 
     @EJB
     private TicketService ticketService;
@@ -77,27 +81,25 @@ public class TicketController implements Serializable {
             Font fontBig = new Font(Font.getFamily("Arial"), 24.0f, Font.BOLD);
             Font fontMedium = new Font(Font.getFamily("Arial"), 12.0f, Font.NORMAL);
 
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
             document.add(new Paragraph("Ticket sales report", fontBig));
             document.add(new Paragraph(Chunk.NEWLINE));
-            document.add(new Paragraph("Start date: " + dateFormat.format(dateFrom), fontMedium));
-            document.add(new Paragraph("End date: " + dateFormat.format(dateTo), fontMedium));
+            document.add(new Paragraph("Start date: " + datetimeFormat.format(dateFrom), fontMedium));
+            document.add(new Paragraph("End date: " + datetimeFormat.format(dateTo), fontMedium));
             document.add(new Paragraph(Chunk.NEWLINE));
 
             if (ticketList != null && !ticketList.isEmpty()) {
-                PdfPTable table = new PdfPTable(8);
+                PdfPTable table = new PdfPTable(12);
                 table.setWidthPercentage(100);
                 table.setSpacingBefore(5);
                 table.setSpacingAfter(5);
-
+                float[] columnWidths = new float[]{5f, 20f, 15f, 5f, 15f, 15f, 10f, 5f, 15f, 15f, 8f, 8f};
+                table.setWidths(columnWidths);
                 float headBorder = 1f;
 
-                PdfPCell ticketCell = new PdfPCell(new Phrase("Ticket Id", fontMedium));
+                PdfPCell ticketCell = new PdfPCell(new Phrase("Ticket information", fontMedium));
                 ticketCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                ticketCell.setVerticalAlignment(Element.ALIGN_CENTER);
                 ticketCell.setBorderWidth(headBorder);
-                ticketCell.setRowspan(2);
+                ticketCell.setColspan(3);
                 table.addCell(ticketCell);
                 PdfPCell passengerCell = new PdfPCell(new Phrase("Passenger information" + Chunk.NEWLINE, fontMedium));
                 passengerCell.setBorderWidth(headBorder);
@@ -106,10 +108,19 @@ public class TicketController implements Serializable {
                 table.addCell(passengerCell);
                 PdfPCell trainCell = new PdfPCell(new Phrase("Train information", fontMedium));
                 trainCell.setBorderWidth(headBorder);
-                trainCell.setColspan(3);
+                trainCell.setColspan(5);
                 trainCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(trainCell);
 
+                PdfPCell ticketId = new PdfPCell(new Phrase("Id", fontMedium));
+                ticketId.setBorderWidth(headBorder);
+                table.addCell(ticketId);
+                PdfPCell ticketCost = new PdfPCell(new Phrase("Cost", fontMedium));
+                ticketCost.setBorderWidth(headBorder);
+                table.addCell(ticketCost);
+                PdfPCell ticketSaleTime = new PdfPCell(new Phrase("Sale time", fontMedium));
+                ticketSaleTime.setBorderWidth(headBorder);
+                table.addCell(ticketSaleTime);
                 PdfPCell passengerId = new PdfPCell(new Phrase("Id", fontMedium));
                 passengerId.setBorderWidth(headBorder);
                 table.addCell(passengerId);
@@ -125,6 +136,12 @@ public class TicketController implements Serializable {
                 PdfPCell trainId = new PdfPCell(new Phrase("Id", fontMedium));
                 trainId.setBorderWidth(headBorder);
                 table.addCell(trainId);
+                PdfPCell trainDepartureStation = new PdfPCell(new Phrase("Departure station", fontMedium));
+                trainDepartureStation.setBorderWidth(headBorder);
+                table.addCell(trainDepartureStation);
+                PdfPCell trainDepartureDate = new PdfPCell(new Phrase("Departure date", fontMedium));
+                trainDepartureDate.setBorderWidth(headBorder);
+                table.addCell(trainDepartureDate);
                 PdfPCell trainNumber = new PdfPCell(new Phrase("Number", fontMedium));
                 trainNumber.setBorderWidth(headBorder);
                 table.addCell(trainNumber);
@@ -132,11 +149,18 @@ public class TicketController implements Serializable {
                 trainSeats.setBorderWidth(headBorder);
                 table.addCell(trainSeats);
 
-                for (Ticket t : ticketList) {
-                    Passenger passenger = t.getPassenger();
-                    Train train = t.getTrain();
+                NumberFormat formatter = new DecimalFormat("#0.00");
+                double totalCost = 0;
 
-                    PdfPCell ticketIdCell = new PdfPCell(new Phrase(String.valueOf(t.getId()), fontMedium));
+                for (TicketData t : ticketList) {
+                    PassengerData passenger = t.getPassengerData();
+                    TrainData train = t.getTrainData();
+
+                    PdfPCell ticketIdCell = new PdfPCell(new Phrase(String.valueOf(t.getTicketId()), fontMedium));
+                    PdfPCell ticketCostCell = new PdfPCell(new Phrase(String.valueOf(train.getTicketCost()), fontMedium));
+                    PdfPCell ticketSaleCell = new PdfPCell(new Phrase(datetimeFormat.format(t.getSaleTime()), fontMedium));
+
+                    totalCost += train.getTicketCost();
 
                     PdfPCell passengerIdCell = new PdfPCell(new Phrase(String.valueOf(passenger.getId()), fontMedium));
                     PdfPCell passengerNameCell = new PdfPCell(new Phrase(String.valueOf(passenger.getName()),
@@ -147,21 +171,33 @@ public class TicketController implements Serializable {
                             new Phrase(dateFormat.format(passenger.getBirthdate()), fontMedium));
 
                     PdfPCell trainIdCell = new PdfPCell(new Phrase(String.valueOf(train.getId()), fontMedium));
+                    PdfPCell trainStationCell = new PdfPCell(new Phrase(String.valueOf(t.getStationFrom()), fontMedium));
+
+                    LOG.warn("t.getDepartureDate(): " + t.getDepartureDate());
+                    LOG.warn("datetimeFormat.format(t.getDepartureDate(): " + datetimeFormat.format(t.getDepartureDate()));
+
+                    PdfPCell trainDateCell = new PdfPCell(new Phrase(datetimeFormat.format(t.getDepartureDate()), fontMedium));
                     PdfPCell trainNumberCell = new PdfPCell(new Phrase(String.valueOf(train.getNumber()), fontMedium));
                     PdfPCell trainSeatsCell = new PdfPCell(new Phrase(String.valueOf(train.getSeats()), fontMedium));
 
                     table.addCell(ticketIdCell);
+                    table.addCell(ticketCostCell);
+                    table.addCell(ticketSaleCell);
                     table.addCell(passengerIdCell);
                     table.addCell(passengerNameCell);
                     table.addCell(passengerSurnameCell);
                     table.addCell(passengerBirthdateCell);
                     table.addCell(trainIdCell);
+                    table.addCell(trainStationCell);
+                    table.addCell(trainDateCell);
                     table.addCell(trainNumberCell);
                     table.addCell(trainSeatsCell);
                 }
                 document.add(table);
+                document.add(new Paragraph("Total count: " + ticketList.size(), fontMedium));
+                document.add(new Paragraph("Total cost: " + formatter.format(totalCost), fontMedium));
             } else {
-                document.add(new Paragraph("For a specified period not sold a single ticket!"));
+                document.add(new Paragraph("For a specified period not sold a single ticket!", fontMedium));
             }
             document.close();
             setPdfContent(new DefaultStreamedContent(new ByteArrayInputStream(out.toByteArray()), "application/pdf"));

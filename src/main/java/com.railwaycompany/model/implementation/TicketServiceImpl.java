@@ -3,7 +3,7 @@ package com.railwaycompany.model.implementation;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.railwaycompany.model.entities.Ticket;
+import com.railwaycompany.model.dto.TicketData;
 import com.railwaycompany.model.interfaces.TicketService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -29,12 +29,13 @@ public class TicketServiceImpl implements TicketService {
     private static final String URL = "http://localhost:8080/InformationSystem/tickets";
     private static final String TOKEN_PARAM = "Rest-Token";
     private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
     private static final String TIME_FORMAT = "HH:mm";
     private final DateFormat date = new SimpleDateFormat(DATE_FORMAT);
     private final DateFormat time = new SimpleDateFormat(TIME_FORMAT);
 
     @Override
-    public List<Ticket> getTickets(Date dateFrom, Date dateTo, String token) {
+    public List<TicketData> getTickets(Date dateFrom, Date dateTo, String token) {
         CloseableHttpClient httpClient = null;
         StringBuilder result = null;
         HttpGet getRequest = new HttpGet(URL + "?" + "dateFrom=" + date.format(dateFrom) + "&&" + "dateTo=" +
@@ -71,9 +72,9 @@ public class TicketServiceImpl implements TicketService {
             }
         }
         if (result != null) {
-            Type listType = new TypeToken<ArrayList<Ticket>>() {
+            Type listType = new TypeToken<ArrayList<TicketData>>() {
             }.getType();
-            Gson gson = new GsonBuilder().setDateFormat(DATE_FORMAT).create();
+            Gson gson = new GsonBuilder().setDateFormat(DATETIME_FORMAT).create();
             return gson.fromJson(result.toString(), listType);
         }
         return null;
