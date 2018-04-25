@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="RemoteManagementSystem:war">
-    <output-path>$PROJECT_DIR$/target</output-path>
-    <root id="archive" name="RemoteManagementSystem.war">
-      <element id="artifact" artifact-name="RemoteManagementSystem:war exploded" />
-    </root>
-  </artifact>
-</component>
